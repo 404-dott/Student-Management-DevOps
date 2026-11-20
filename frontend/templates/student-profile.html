@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile - Student Management DevOps Portal</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="brand-text">EduManager <span class="badge bg-primary text-white" style="font-size: 0.65rem;">DevOps</span></div>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li class="nav-category">Main Menu</li>
+                <li class="sidebar-item">
+                    <a href="/dashboard" class="sidebar-link">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/students" class="sidebar-link">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Student Directory</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/attendance" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Attendance Hub</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/student-profile" class="sidebar-link active">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>Student Profile</span>
+                    </a>
+                </li>
+
+                <li class="nav-category">DevOps & System</li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#architectureModal">
+                        <i class="fa-solid fa-server"></i>
+                        <span>Architecture & CI/CD</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between text-white-50 small">
+                    <span><i class="fa-solid fa-cube text-primary me-1"></i> Docker Multi-Tier</span>
+                    <span class="badge bg-success bg-opacity-25 text-success">v1.0.0</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Layout -->
+        <div class="app-main">
+            <!-- Topbar -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <span class="fw-semibold text-secondary d-none d-md-inline">Student Management System &bull; DevOps Edition</span>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Health Check Live Pill -->
+                    <span id="health-pill" class="badge rounded-pill bg-success-subtle text-success border border-success-subtle d-flex align-items-center gap-2 px-3 py-2">
+                        <span class="pulse-indicator bg-success"></span>
+                        <span id="health-status-text" class="fw-semibold small">Database Online</span>
+                    </span>
+
+                    <!-- Admin User Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-light rounded-pill border d-flex align-items-center gap-2 px-3 py-1 dropdown-toggle" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar-sm">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                            <span class="fw-semibold small" id="admin-name">Admin</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="adminDropdown">
+                            <li class="dropdown-header text-uppercase small fw-bold">Admin Portal</li>
+                            <li><span class="dropdown-item-text text-muted small" id="admin-email">admin@university.edu</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#" id="logoutBtn">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <div class="content-body">
+                <!-- Search & Lookup Card -->
+                <div class="app-card mb-4">
+                    <div class="p-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="profile-search-input" placeholder="Enter USN, Student ID or Name to view profile...">
+                                    <button class="btn btn-primary fw-semibold px-4" id="btn-search-profile">
+                                        Lookup Profile
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 text-md-end text-muted small">
+                                <span>Try sample USNs: <strong>1MS21CS001</strong>, <strong>1MS21CS042</strong>, <strong>1MS22IS015</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Profile Display Container -->
+                <div id="profile-container">
+                    <!-- Loaded dynamically via JS -->
+                    <div class="text-center py-5 text-muted">
+                        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                        Loading student profile details...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal for Profile Page -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-solid fa-user-pen me-2"></i>Update Student Profile
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="profile-edit-form">
+                    <input type="hidden" id="p-edit-id">
+                    <div class="modal-body p-4">
+                        <div id="p-edit-alert" class="alert alert-danger d-none py-2 px-3 small" role="alert"></div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="p-edit-code" class="form-label fw-semibold small">Student ID</label>
+                                <input type="text" class="form-control" id="p-edit-code" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="p-edit-usn" class="form-label fw-semibold small">USN</label>
+                                <input type="text" class="form-control text-uppercase" id="p-edit-usn" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="p-edit-name" class="form-label fw-semibold small">Full Name</label>
+                                <input type="text" class="form-control" id="p-edit-name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="p-edit-gender" class="form-label fw-semibold small">Gender</label>
+                                <select class="form-select" id="p-edit-gender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="p-edit-email" class="form-label fw-semibold small">Email Address</label>
+                                <input type="email" class="form-control" id="p-edit-email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="p-edit-phone" class="form-label fw-semibold small">Phone Number</label>
+                                <input type="tel" class="form-control" id="p-edit-phone" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="p-edit-dept" class="form-label fw-semibold small">Department</label>
+                                <select class="form-select" id="p-edit-dept" required>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Information Science">Information Science</option>
+                                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                                    <option value="Electronics & Comm">Electronics & Comm</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="p-edit-sem" class="form-label fw-semibold small">Semester</label>
+                                <select class="form-select" id="p-edit-sem" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="p-edit-dob" class="form-label fw-semibold small">Date of Birth</label>
+                                <input type="date" class="form-control" id="p-edit-dob" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="p-edit-address" class="form-label fw-semibold small">Residential Address</label>
+                            <textarea class="form-control" id="p-edit-address" rows="2"></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="p-edit-status" class="form-label fw-semibold small">Status</label>
+                                <select class="form-select" id="p-edit-status">
+                                    <option value="Active">Active</option>
+                                    <option value="Graduated">Graduated</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="p-edit-submit-btn" class="btn btn-primary fw-semibold px-4">Update Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture Modal -->
+    <div class="modal fade" id="architectureModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-brands fa-docker text-primary me-2"></i>Multi-Tier DevOps & CI/CD Pipeline
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <span class="badge bg-primary mb-2">Frontend</span>
+                                <h6 class="fw-bold">Nginx Reverse Proxy</h6>
+                                <p class="small text-muted mb-0">Serves static assets, routes UI templates, and handles reverse-proxying of <code>/api/*</code>.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <span class="badge bg-success mb-2">Backend</span>
+                                <h6 class="fw-bold">Python Flask REST API</h6>
+                                <p class="small text-muted mb-0">Production WSGI Gunicorn server managing authentication, CRUD, attendance tracking and health probes.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <span class="badge bg-warning text-dark mb-2">Database</span>
+                                <h6 class="fw-bold">MySQL 8.0 Engine</h6>
+                                <p class="small text-muted mb-0">Persistent storage volume (<code>mysql_data</code>) with foreign key cascades, healthchecks and initialization SQL.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Live Toast Alert -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+        <div id="live-toast" class="toast align-items-center text-white border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+                    <span id="toast-message">Operation successful</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Application JS -->
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initProfilePage();
+        });
+    </script>
+</body>
+</html>

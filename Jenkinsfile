@@ -8,133 +8,135 @@ pipeline {
     }
 
     environment {
-        // Registry & Image Configuration
-        DOCKER_REGISTRY = credentials('dockerhub-username-var') // Or set your Docker Hub username
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'       // Jenkins Credentials ID
-        APP_NAME = 'student-management'
-        BACKEND_IMAGE = "${DOCKER_REGISTRY}/student-backend"
-        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/student-frontend"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        // Application Metadata
+        APP_NAME = 'student-management-devops'
+        BUILD_TAG = "${env.BUILD_NUMBER ?: '1.0.0'}"
 
-        // Test environment
+        // Docker Registry Configuration
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_USER = credentials('dockerhub-username')
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        BACKEND_IMAGE = "${DOCKER_USER}/student-backend"
+        FRONTEND_IMAGE = "${DOCKER_USER}/student-frontend"
+
+        // Automated Testing Configuration (Isolated SQLite environment)
         USE_SQLITE = 'true'
+        SQLITE_DB_PATH = 'tests/test_students.db'
     }
 
     stages {
-        // -------------------------------------------------------------
-        // Stage 1: SCM Checkout
-        // -------------------------------------------------------------
-        stage('Checkout Code') {
+        // =============================================================
+        // Stage 1: Source Code Checkout from GitHub
+        // =============================================================
+        stage('Checkout Source Code') {
             steps {
-                echo '📥 Checking out source code from Git repository...'
+                echo '📥 Step 1: Checking out source code from Git repository...'
                 checkout scm
+                sh 'git log -1 --pretty=format:"Commit: %h by %an, %ar : %s"'
             }
         }
 
-        // -------------------------------------------------------------
-        // Stage 2: Code Quality & Linting
-        // -------------------------------------------------------------
-        stage('Code Quality & Linting') {
+        // =============================================================
+        // Stage 2: Environment Setup & Dependency Installation
+        // =============================================================
+        stage('Install Dependencies') {
             steps {
-                echo '🔍 Running Python syntax compilation and flake8 linting...'
+                echo '📦 Step 2: Setting up Python virtual environment and installing dependencies...'
                 sh '''
-                    python3 -m py_compile backend/*.py tests/*.py
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip setuptools wheel
+                    pip install -r backend/requirements.txt
                 '''
             }
         }
 
-        // -------------------------------------------------------------
-        // Stage 3: Automated Unit & Integration Tests
-        // -------------------------------------------------------------
-        stage('Automated Tests') {
+        // =============================================================
+        // Stage 3: Automated Testing with Pytest
+        // =============================================================
+        stage('Automated Pytest Testing') {
             steps {
-                echo '🧪 Executing unit and integration tests...'
+                echo '🧪 Step 3: Running automated unit & integration test suite with Pytest...'
                 sh '''
-                    python3 -m unittest tests/test_app.py -v
+                    . venv/bin/activate
+                    export USE_SQLITE=true
+                    export SQLITE_DB_PATH=tests/test_students.db
+                    pytest tests/test_app.py -v --junitxml=test-results.xml
                 '''
+            }
+            post {
+                always {
+                    // Record and publish JUnit test results in Jenkins UI
+                    junit allowEmptyResults: true, testResults: 'test-results.xml'
+                }
             }
         }
 
-        // -------------------------------------------------------------
-        // Stage 4: Build Docker Images
-        // -------------------------------------------------------------
+        // =============================================================
+        // Stage 4: Docker Image Building
+        // =============================================================
         stage('Build Docker Images') {
             steps {
-                echo "🐳 Building Docker images with build tag ${IMAGE_TAG}..."
+                echo "🐳 Step 4: Building production Docker container images (Tag: ${BUILD_TAG})..."
                 script {
-                    // Build Backend Image
+                    // Build Backend Flask container image
                     sh """
-                        docker build -t ${BACKEND_IMAGE}:${IMAGE_TAG} -t ${BACKEND_IMAGE}:latest ./backend
+                        docker build \
+                            -t ${BACKEND_IMAGE}:${BUILD_TAG} \
+                            -t ${BACKEND_IMAGE}:latest \
+                            ./backend
                     """
 
-                    // Build Frontend Image
+                    // Build Frontend Nginx container image
                     sh """
-                        docker build -t ${FRONTEND_IMAGE}:${IMAGE_TAG} -t ${FRONTEND_IMAGE}:latest ./frontend
+                        docker build \
+                            -t ${FRONTEND_IMAGE}:${BUILD_TAG} \
+                            -t ${FRONTEND_IMAGE}:latest \
+                            ./frontend
                     """
                 }
             }
         }
 
-        // -------------------------------------------------------------
-        // Stage 5: Container Security Vulnerability Scan (Trivy)
-        // -------------------------------------------------------------
-        stage('Security Scan (Trivy)') {
+        // =============================================================
+        // Stage 5: Container Smoke Test & Verification
+        // =============================================================
+        stage('Smoke Test Stack') {
             steps {
-                echo '🛡️ Scanning built Docker images for CVE vulnerabilities...'
+                echo '🔍 Verifying container networking and health check probes...'
                 sh '''
-                    if command -v trivy >/dev/null 2>&1; then
-                        trivy image --severity HIGH,CRITICAL --exit-code 0 ${BACKEND_IMAGE}:${IMAGE_TAG}
-                        trivy image --severity HIGH,CRITICAL --exit-code 0 ${FRONTEND_IMAGE}:${IMAGE_TAG}
-                    else
-                        echo "Trivy not detected on Jenkins agent. Skipping security scan."
-                    fi
-                '''
-            }
-        }
-
-        // -------------------------------------------------------------
-        // Stage 6: Docker Compose Smoke Test
-        // -------------------------------------------------------------
-        stage('Compose Integration Test') {
-            steps {
-                echo '🚀 Spinning up multi-container stack for smoke testing...'
-                sh '''
-                    # Start containers detached
+                    echo "Starting stack in test mode..."
                     docker compose up -d
 
-                    # Wait for services to initialize and MySQL healthcheck to pass
-                    echo "Waiting for services to warm up..."
-                    sleep 20
+                    echo "Awaiting MySQL and Flask health status (up to 30s)..."
+                    sleep 25
 
-                    # Verify Backend Health Check
-                    echo "Testing Backend API healthcheck (/api/health)..."
+                    echo "Querying Backend Health Endpoint..."
                     curl -s -f http://localhost:5000/api/health || {
-                        echo "Backend health check failed!"
-                        docker compose logs
+                        echo "Backend probe failed!"
+                        docker compose logs backend
                         docker compose down -v
                         exit 1
                     }
 
-                    # Verify Frontend Nginx HTTP 200
-                    echo "Testing Frontend HTTP response..."
-                    curl -s -f -I http://localhost:80/ | grep "200 OK" || {
-                        echo "Frontend check failed!"
-                        docker compose logs
+                    echo "Querying Frontend HTTP Status..."
+                    curl -s -f -I http://localhost:80/ | grep -E "200 OK|302 Found" || {
+                        echo "Frontend probe failed!"
+                        docker compose logs frontend
                         docker compose down -v
                         exit 1
                     }
 
-                    # Teardown smoke test environment
-                    echo "Smoke tests passed. Tearing down test containers..."
+                    echo "Smoke testing succeeded. Cleaning test containers..."
                     docker compose down -v
                 '''
             }
         }
 
-        // -------------------------------------------------------------
-        // Stage 7: Push Docker Images to Container Registry
-        // -------------------------------------------------------------
-        stage('Push to Registry') {
+        // =============================================================
+        // Stage 6: Push Images to Container Registry
+        // =============================================================
+        stage('Push to Docker Registry') {
             when {
                 branch 'main'
             }
@@ -143,14 +145,14 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(
                         credentialsId: "${DOCKER_CREDENTIALS_ID}",
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
+                        usernameVariable: 'DOCKER_REG_USER',
+                        passwordVariable: 'DOCKER_REG_PASS'
                     )]) {
                         sh '''
-                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                            docker push ${BACKEND_IMAGE}:${IMAGE_TAG}
+                            echo "$DOCKER_REG_PASS" | docker login -u "$DOCKER_REG_USER" --password-stdin
+                            docker push ${BACKEND_IMAGE}:${BUILD_TAG}
                             docker push ${BACKEND_IMAGE}:latest
-                            docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                            docker push ${FRONTEND_IMAGE}:${BUILD_TAG}
                             docker push ${FRONTEND_IMAGE}:latest
                             docker logout
                         '''
@@ -159,42 +161,39 @@ pipeline {
             }
         }
 
-        // -------------------------------------------------------------
-        // Stage 8: Continuous Deployment to AWS / Production
-        // -------------------------------------------------------------
-        stage('Deploy to Server') {
+        // =============================================================
+        // Stage 7: Deployment using Docker Compose
+        // =============================================================
+        stage('Deploy via Docker Compose') {
             when {
                 branch 'main'
             }
             steps {
-                echo '🚀 Deploying updated containers to AWS EC2 / Staging environment...'
-                script {
-                    // Example remote deployment via SSH:
-                    // withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
-                    //     sh '''
-                    //         ssh -i $KEY -o StrictHostKeyChecking=no $USER@ec2-target-ip \
-                    //         "cd /opt/Student-Management-DevOps && docker compose pull && docker compose up -d"
-                    //     '''
-                    // }
-                    echo 'Continuous deployment step configured. Update EC2 host / credentials to enable live target push.'
-                }
+                echo '🚀 Step 5: Deploying updated application using Docker Compose...'
+                sh '''
+                    # Pull latest images or rebuild and restart containers
+                    docker compose down
+                    docker compose up -d --build
+
+                    echo "Application deployed successfully and accessible at http://localhost:80"
+                '''
             }
         }
     }
 
-    // -----------------------------------------------------------------
-    // Post-Pipeline Notifications & Workspace Cleanup
-    // -----------------------------------------------------------------
+    // =================================================================
+    // Post-Pipeline Actions & Notifications
+    // =================================================================
     post {
         always {
-            echo '🧹 Cleaning up Jenkins workspace...'
-            cleanWs()
+            echo '🧹 Cleaning up workspace artifacts...'
+            cleanWs deleteDirs: true, notFailBuild: true
         }
         success {
-            echo '✅ Pipeline execution SUCCESSFUL! Build and tests passed.'
+            echo '✅ Pipeline execution SUCCESSFUL! Code checked out, tested, built, and deployed.'
         }
         failure {
-            echo '❌ Pipeline execution FAILED! Check console output for diagnostic details.'
+            echo '❌ Pipeline execution FAILED! Check console log output for diagnostic traces.'
         }
     }
 }

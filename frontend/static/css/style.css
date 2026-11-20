@@ -1,274 +1,658 @@
 /* ==========================================================================
-   Student Management System - DevOps Project Stylesheet
+   Modern SaaS Admin Dashboard Styling - Student Management DevOps Portal
    ========================================================================== */
 
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --secondary-color: #475569;
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #eef2ff;
+    --secondary-color: #0ea5e9;
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
-    --info-color: #06b6d4;
     --dark-bg: #0f172a;
-    --light-bg: #f8fafc;
+    --sidebar-bg: #1e293b;
+    --sidebar-hover: #334155;
+    --body-bg: #f8fafc;
     --card-bg: #ffffff;
-    --border-color: #e2e8f0;
-    --text-primary: #1e293b;
+    --text-main: #1e293b;
     --text-muted: #64748b;
-    --radius-md: 0.75rem;
-    --radius-lg: 1rem;
-    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --border-color: #e2e8f0;
+    --sidebar-width: 260px;
+    --topbar-height: 70px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--text-primary);
-    background-color: var(--light-bg);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   1. Layout & Wrapper (Sidebar + Main Content)
+   ========================================================================== */
+.app-wrapper {
+    display: flex;
     min-height: 100vh;
 }
 
-/* --------------------------------------------------------------------------
-   Auth / Login Screen
-   -------------------------------------------------------------------------- */
-.auth-body {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+/* Sidebar */
+.app-sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    transition: var(--transition);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.12);
+}
+
+.sidebar-brand {
+    height: var(--topbar-height);
     display: flex;
     align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 1.5rem;
-}
-
-.auth-container {
-    width: 100%;
-    max-width: 480px;
-}
-
-.auth-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.auth-header {
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    padding: 2.5rem 2rem 2rem;
+    padding: 0 1.5rem;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .brand-icon {
-    width: 64px;
-    height: 64px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.badge-devops {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-/* --------------------------------------------------------------------------
-   Dashboard & Navigation
-   -------------------------------------------------------------------------- */
-.dashboard-body {
-    background-color: #f1f5f9;
-}
-
-.brand-icon-sm {
-    width: 34px;
-    height: 34px;
-    background: var(--primary-color);
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 1rem;
-}
-
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
 }
 
-.student-avatar {
-    width: 36px;
-    height: 36px;
-    background: #e2e8f0;
-    color: #475569;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.brand-text {
+    font-size: 1.15rem;
     font-weight: 700;
-    font-size: 0.85rem;
+    letter-spacing: -0.02em;
+    color: #ffffff;
 }
 
-/* Health status pulse animation */
+.sidebar-nav {
+    list-style: none;
+    padding: 1rem 0.75rem;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-category {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+    font-weight: 600;
+}
+
+.sidebar-item {
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 1rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.sidebar-link i {
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+    color: #94a3b8;
+    transition: var(--transition);
+}
+
+.sidebar-link:hover {
+    color: #ffffff;
+    background: var(--sidebar-hover);
+}
+
+.sidebar-link:hover i {
+    color: var(--secondary-color);
+}
+
+.sidebar-link.active {
+    color: #ffffff;
+    background: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.sidebar-link.active i {
+    color: #ffffff;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Main Content Area */
+.app-main {
+    margin-left: var(--sidebar-width);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: var(--transition);
+}
+
+/* Topbar */
+.app-topbar {
+    height: var(--topbar-height);
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: var(--shadow-sm);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.sidebar-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: none;
+}
+
+/* Pulse indicator for live health check */
 .pulse-indicator {
+    display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    animation: pulse 1.8s infinite;
+    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    }
-    70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-    }
-    100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-    }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
-/* --------------------------------------------------------------------------
-   Welcome & Metric Cards
-   -------------------------------------------------------------------------- */
-.welcome-card {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.metric-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: var(--radius-md);
-}
-
-.metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-card) !important;
-}
-
-.metric-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: var(--radius-md);
+.avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   2. Page Content, Headers & Banners
+   ========================================================================== */
+.content-body {
+    padding: 2rem;
+    flex-grow: 1;
+}
+
+.page-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.75rem;
+}
+
+@media (min-width: 768px) {
+    .page-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.page-title {
     font-size: 1.5rem;
-}
-
-/* --------------------------------------------------------------------------
-   Student Table & Status Badges
-   -------------------------------------------------------------------------- */
-#students-table thead th {
-    font-size: 0.8rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--secondary-color);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    color: #0f172a;
+    letter-spacing: -0.02em;
 }
 
-#students-table tbody td {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+.page-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* Welcome Hero Banner */
+.welcome-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #312e81 50%, #4f46e5 100%);
+    border-radius: 16px;
+    color: #ffffff;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-hero::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    bottom: -40px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   3. Metric Statistics Cards
+   ========================================================================== */
+.stat-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: #cbd5e1;
+}
+
+.stat-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.stat-icon.primary { background: #eef2ff; color: #4f46e5; }
+.stat-icon.info { background: #e0f2fe; color: #0284c7; }
+.stat-icon.pink { background: #fdf2f8; color: #db2777; }
+.stat-icon.success { background: #ecfdf5; color: #10b981; }
+
+.stat-info .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.stat-info .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+}
+
+.stat-info .stat-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   4. Cards & Tables
+   ========================================================================== */
+.app-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.app-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: #ffffff;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.card-title-main {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.custom-table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.custom-table thead th {
+    background: #f8fafc;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.custom-table tbody td {
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
 }
 
-.student-id-badge {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-weight: 700;
-    background: #f1f5f9;
-    color: #334155;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    border: 1px solid #cbd5e1;
+.custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #f1f5f9;
 }
 
 /* Status Badges */
-.status-badge {
+.badge-status {
+    padding: 0.35rem 0.75rem;
+    border-radius: 30px;
     font-size: 0.75rem;
     font-weight: 600;
-    padding: 5px 10px;
-    border-radius: 20px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 0.35rem;
 }
 
-.status-badge.active {
-    background-color: #dcfce7;
-    color: #15803d;
-    border: 1px solid #bbf7d0;
+.badge-status.active,
+.badge-status.present {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
 }
 
-.status-badge.graduated {
-    background-color: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
+.badge-status.graduated,
+.badge-status.late {
+    background-color: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
 }
 
-.status-badge.suspended {
-    background-color: #fee2e2;
-    color: #b91c1c;
+.badge-status.suspended,
+.badge-status.absent {
+    background-color: #fef2f2;
+    color: #dc2626;
     border: 1px solid #fecaca;
 }
 
-/* Action Buttons */
-.action-btn {
+.badge-status.unmarked {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+/* Gender Badges */
+.gender-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+}
+.gender-pill.male { background: #e0f2fe; color: #0284c7; }
+.gender-pill.female { background: #fdf2f8; color: #db2777; }
+.gender-pill.other { background: #f3e8ff; color: #7e22ce; }
+
+/* Table Action Buttons */
+.action-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-icon {
     width: 32px;
     height: 32px;
-    padding: 0;
+    border-radius: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: var(--transition);
+}
+
+.btn-icon:hover {
+    color: #ffffff;
+}
+
+.btn-icon.view:hover { background: var(--secondary-color); border-color: var(--secondary-color); }
+.btn-icon.edit:hover { background: var(--primary-color); border-color: var(--primary-color); }
+.btn-icon.delete:hover { background: var(--danger-color); border-color: var(--danger-color); }
+
+/* ==========================================================================
+   5. Attendance Marking Buttons & Controls
+   ========================================================================== */
+.attendance-toggle-group {
+    display: inline-flex;
+    border-radius: 8px;
+    background: #f1f5f9;
+    padding: 3px;
+    gap: 3px;
+}
+
+.btn-att {
+    border: none;
+    background: transparent;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     border-radius: 6px;
-    transition: all 0.15s ease;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
 }
 
-.action-btn:hover {
-    transform: scale(1.08);
+.btn-att.active-present {
+    background: #10b981;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
 }
 
-/* --------------------------------------------------------------------------
-   Buttons & Inputs
-   -------------------------------------------------------------------------- */
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+.btn-att.active-late {
+    background: #f59e0b;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.25);
 }
 
-.btn-primary:hover, .btn-primary:focus {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+.btn-att.active-absent {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
 }
 
-.form-control:focus, .form-select:focus {
-    border-color: #93c5fd;
-    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+/* ==========================================================================
+   6. Student Profile Card Styling
+   ========================================================================== */
+.profile-cover {
+    height: 140px;
+    background: linear-gradient(135deg, #312e81, #4f46e5);
+    border-radius: 14px 14px 0 0;
+    position: relative;
+}
+
+.profile-avatar-wrapper {
+    position: absolute;
+    bottom: -40px;
+    left: 2rem;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 4px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
+.profile-header-details {
+    padding: 3.5rem 2rem 1.5rem 2rem;
+}
+
+.attendance-progress-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: conic-gradient(var(--success-color) var(--percentage), #e2e8f0 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attendance-progress-inner {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #0f172a;
+}
+
+/* ==========================================================================
+   7. Login Page Styling
+   ========================================================================== */
+.login-body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.login-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.login-header {
+    background: linear-gradient(135deg, #1e293b, #312e81);
+    color: #ffffff;
+    padding: 2.5rem 2rem 2rem 2rem;
+    text-align: center;
+}
+
+.login-body-content {
+    padding: 2.25rem 2rem;
+}
+
+.login-footer {
+    background: #f8fafc;
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   8. Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .app-sidebar.show {
+        transform: translateX(0);
+    }
+
+    .app-main {
+        margin-left: 0;
+    }
+
+    .sidebar-toggle-btn {
+        display: block;
+    }
 }

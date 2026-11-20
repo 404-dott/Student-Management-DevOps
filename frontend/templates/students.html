@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Directory - Student Management DevOps Portal</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="brand-text">EduManager <span class="badge bg-primary text-white" style="font-size: 0.65rem;">DevOps</span></div>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li class="nav-category">Main Menu</li>
+                <li class="sidebar-item">
+                    <a href="/dashboard" class="sidebar-link">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/students" class="sidebar-link active">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Student Directory</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/attendance" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Attendance Hub</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/student-profile" class="sidebar-link">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>Student Profile</span>
+                    </a>
+                </li>
+
+                <li class="nav-category">DevOps & System</li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#architectureModal">
+                        <i class="fa-solid fa-server"></i>
+                        <span>Architecture & CI/CD</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between text-white-50 small">
+                    <span><i class="fa-solid fa-cube text-primary me-1"></i> Docker Multi-Tier</span>
+                    <span class="badge bg-success bg-opacity-25 text-success">v1.0.0</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Layout -->
+        <div class="app-main">
+            <!-- Topbar -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <span class="fw-semibold text-secondary d-none d-md-inline">Student Management System &bull; DevOps Edition</span>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Health Check Live Pill -->
+                    <span id="health-pill" class="badge rounded-pill bg-success-subtle text-success border border-success-subtle d-flex align-items-center gap-2 px-3 py-2">
+                        <span class="pulse-indicator bg-success"></span>
+                        <span id="health-status-text" class="fw-semibold small">Database Online</span>
+                    </span>
+
+                    <!-- Admin User Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-light rounded-pill border d-flex align-items-center gap-2 px-3 py-1 dropdown-toggle" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar-sm">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                            <span class="fw-semibold small" id="admin-name">Admin</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="adminDropdown">
+                            <li class="dropdown-header text-uppercase small fw-bold">Admin Portal</li>
+                            <li><span class="dropdown-item-text text-muted small" id="admin-email">admin@university.edu</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#" id="logoutBtn">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <div class="content-body">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Student Records Management</h2>
+                        <p class="page-subtitle">Add, edit, view, search, and delete registered student profiles</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary fw-semibold px-4 py-2 d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                            <i class="fa-solid fa-user-plus"></i> Add New Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters & Search Bar Card -->
+                <div class="app-card mb-4">
+                    <div class="p-3">
+                        <div class="row g-2 align-items-center">
+                            <!-- Search by Name or USN -->
+                            <div class="col-12 col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="filter-search" placeholder="Search by name, USN, ID...">
+                                </div>
+                            </div>
+
+                            <!-- Department Filter -->
+                            <div class="col-6 col-md-2">
+                                <select class="form-select" id="filter-department">
+                                    <option value="">All Departments</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Information Science">Information Science</option>
+                                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                                    <option value="Electronics & Comm">Electronics & Comm</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                </select>
+                            </div>
+
+                            <!-- Semester Filter -->
+                            <div class="col-6 col-md-2">
+                                <select class="form-select" id="filter-semester">
+                                    <option value="">All Semesters</option>
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                    <option value="5">Semester 5</option>
+                                    <option value="6">Semester 6</option>
+                                    <option value="7">Semester 7</option>
+                                    <option value="8">Semester 8</option>
+                                </select>
+                            </div>
+
+                            <!-- Gender Filter -->
+                            <div class="col-6 col-md-2">
+                                <select class="form-select" id="filter-gender">
+                                    <option value="">All Genders</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="col-6 col-md-2 d-flex gap-2">
+                                <button class="btn btn-outline-secondary w-100" id="reset-filters-btn" title="Reset Filters">
+                                    <i class="fa-solid fa-arrows-rotate me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students Table Card -->
+                <div class="app-card">
+                    <div class="app-card-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="card-title-main">Registered Students</h3>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="students-count-badge">0 Students</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" id="refresh-students-btn">
+                                <i class="fa-solid fa-rotate me-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>USN</th>
+                                    <th>Full Name</th>
+                                    <th>Department & Sem</th>
+                                    <th>Gender</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                                        Connecting to MySQL database...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 1: ADD STUDENT MODAL -->
+    <!-- ========================================================================= -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="addStudentModalLabel">
+                        <i class="fa-solid fa-user-plus me-2"></i>Register New Student
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="add-student-form">
+                    <div class="modal-body p-4">
+                        <div id="add-alert" class="alert alert-danger d-none py-2 px-3 small" role="alert"></div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="add-student-id" class="form-label fw-semibold small">Student ID <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="add-student-id" placeholder="e.g. STU-1011" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="add-usn" class="form-label fw-semibold small">USN (University Seat Number) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="add-usn" placeholder="e.g. 1MS21CS099" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="add-full-name" class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="add-full-name" placeholder="e.g. Rahul Sharma" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="add-gender" class="form-label fw-semibold small">Gender <span class="text-danger">*</span></label>
+                                <select class="form-select" id="add-gender" required>
+                                    <option value="" disabled selected>Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="add-email" class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="add-email" placeholder="e.g. rahul.sharma@university.edu" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="add-phone" class="form-label fw-semibold small">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="add-phone" placeholder="e.g. +91 9876543210" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="add-department" class="form-label fw-semibold small">Department <span class="text-danger">*</span></label>
+                                <select class="form-select" id="add-department" required>
+                                    <option value="" disabled selected>Select Department</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Information Science">Information Science</option>
+                                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                                    <option value="Electronics & Comm">Electronics & Comm</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="add-semester" class="form-label fw-semibold small">Semester <span class="text-danger">*</span></label>
+                                <select class="form-select" id="add-semester" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6" selected>6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="add-dob" class="form-label fw-semibold small">Date of Birth <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="add-dob" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="add-address" class="form-label fw-semibold small">Residential Address</label>
+                            <textarea class="form-control" id="add-address" rows="2" placeholder="Street, City, Postal Code"></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="add-status" class="form-label fw-semibold small">Enrollment Status</label>
+                                <select class="form-select" id="add-status">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Graduated">Graduated</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="add-submit-btn" class="btn btn-primary fw-semibold px-4">Save Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 2: EDIT STUDENT MODAL -->
+    <!-- ========================================================================= -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="editStudentModalLabel">
+                        <i class="fa-solid fa-user-pen me-2"></i>Edit Student Profile
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="edit-student-form">
+                    <input type="hidden" id="edit-internal-id">
+                    <div class="modal-body p-4">
+                        <div id="edit-alert" class="alert alert-danger d-none py-2 px-3 small" role="alert"></div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="edit-student-id" class="form-label fw-semibold small">Student ID <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit-student-id" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-usn" class="form-label fw-semibold small">USN <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="edit-usn" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="edit-full-name" class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit-full-name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-gender" class="form-label fw-semibold small">Gender <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit-gender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="edit-email" class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="edit-email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-phone" class="form-label fw-semibold small">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="edit-phone" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="edit-department" class="form-label fw-semibold small">Department <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit-department" required>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Information Science">Information Science</option>
+                                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                                    <option value="Electronics & Comm">Electronics & Comm</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="edit-semester" class="form-label fw-semibold small">Semester <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit-semester" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="edit-dob" class="form-label fw-semibold small">Date of Birth <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="edit-dob" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-address" class="form-label fw-semibold small">Residential Address</label>
+                            <textarea class="form-control" id="edit-address" rows="2"></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="edit-status" class="form-label fw-semibold small">Enrollment Status</label>
+                                <select class="form-select" id="edit-status">
+                                    <option value="Active">Active</option>
+                                    <option value="Graduated">Graduated</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="edit-submit-btn" class="btn btn-primary fw-semibold px-4">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 3: DELETE CONFIRMATION MODAL -->
+    <!-- ========================================================================= -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg rounded-4 text-center p-3">
+                <div class="modal-body">
+                    <div class="text-danger mb-3">
+                        <i class="fa-solid fa-triangle-exclamation fa-3x"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Delete Student?</h5>
+                    <p class="text-muted small mb-0">Are you sure you want to remove <strong id="delete-student-name"></strong>?</p>
+                    <p class="text-danger small fw-semibold mt-1">This will permanently erase all associated records and attendance history.</p>
+                </div>
+                <div class="d-flex justify-content-center gap-2 pb-2">
+                    <button type="button" class="btn btn-light fw-semibold px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirm-delete-btn" class="btn btn-danger fw-semibold px-3">Confirm Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture Modal -->
+    <div class="modal fade" id="architectureModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-brands fa-docker text-primary me-2"></i>Multi-Tier DevOps & CI/CD Pipeline
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <span class="badge bg-primary mb-2">Frontend</span>
+                                <h6 class="fw-bold">Nginx Reverse Proxy</h6>
+                                <p class="small text-muted mb-0">Serves static assets, routes UI templates, and handles reverse-proxying of <code>/api/*</code>.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <span class="badge bg-success mb-2">Backend</span>
+                                <h6 class="fw-bold">Python Flask REST API</h6>
+                                <p class="small text-muted mb-0">Production WSGI Gunicorn server managing authentication, CRUD, attendance tracking and health probes.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <span class="badge bg-warning text-dark mb-2">Database</span>
+                                <h6 class="fw-bold">MySQL 8.0 Engine</h6>
+                                <p class="small text-muted mb-0">Persistent storage volume (<code>mysql_data</code>) with foreign key cascades, healthchecks and initialization SQL.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Live Toast Alert -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+        <div id="live-toast" class="toast align-items-center text-white border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+                    <span id="toast-message">Operation successful</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Application JS -->
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initStudentsPage();
+        });
+    </script>
+</body>
+</html>

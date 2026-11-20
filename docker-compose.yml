@@ -1,16 +1,16 @@
 services:
   # ==========================================================
-  # Database Service (MySQL 8.0)
+  # 1. Database Service (MySQL 8.0)
   # ==========================================================
   db:
     image: mysql:8.0
     container_name: student_mysql_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: student_db
-      MYSQL_USER: student_user
-      MYSQL_PASSWORD: student_pass
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-student_db}
+      MYSQL_USER: ${DB_USER:-student_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-student_pass}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -21,12 +21,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 15s
+      start_period: 20s
     networks:
       - student_network
 
   # ==========================================================
-  # Backend API Service (Flask + Gunicorn)
+  # 2. Backend Service (Flask REST API + WSGI Gunicorn)
   # ==========================================================
   backend:
     build:
@@ -35,23 +35,31 @@ services:
     container_name: student_backend_api
     restart: unless-stopped
     environment:
-      SECRET_KEY: student-devops-production-key-2026
+      SECRET_KEY: ${SECRET_KEY:-student-devops-secret-key-2026}
       DB_HOST: db
       DB_PORT: 3306
       DB_USER: root
-      DB_PASSWORD: rootpassword
-      DB_NAME: student_db
+      DB_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      DB_NAME: ${DB_NAME:-student_db}
       USE_SQLITE: "false"
+      FLASK_HOST: 0.0.0.0
+      FLASK_PORT: 5000
     ports:
       - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     networks:
       - student_network
 
   # ==========================================================
-  # Frontend Web Service (Nginx Reverse Proxy)
+  # 3. Frontend Service (Nginx Web Server & Reverse Proxy)
   # ==========================================================
   frontend:
     build:
@@ -62,12 +70,19 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     networks:
       - student_network
 
 # ==========================================================
-# Named Volumes & Networks for Persistence and Isolation
+# Named Volumes & Custom Bridge Network
 # ==========================================================
 volumes:
   mysql_data:

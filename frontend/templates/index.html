@@ -2,18 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=login.html">
-    <title>Redirecting - EduManager</title>
+    <meta http-equiv="refresh" content="0; url=/login">
+    <title>EduManager DevOps - Redirecting</title>
 </head>
 <body>
     <script>
-        // Redirect to dashboard if session exists, else login
-        const user = localStorage.getItem('admin_user');
-        if (user) {
-            window.location.href = 'dashboard.html';
-        } else {
-            window.location.href = 'login.html';
-        }
+        fetch('/api/auth/user')
+            .then(res => res.json())
+            .then(data => {
+                if (data.authenticated) {
+                    window.location.href = '/dashboard';
+                } else {
+                    window.location.href = '/login';
+                }
+            })
+            .catch(() => {
+                window.location.href = '/login';
+            });
     </script>
 </body>
 </html>
