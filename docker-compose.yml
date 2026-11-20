@@ -1,0 +1,78 @@
+services:
+  # ==========================================================
+  # Database Service (MySQL 8.0)
+  # ==========================================================
+  db:
+    image: mysql:8.0
+    container_name: student_mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: student_db
+      MYSQL_USER: student_user
+      MYSQL_PASSWORD: student_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - student_network
+
+  # ==========================================================
+  # Backend API Service (Flask + Gunicorn)
+  # ==========================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: student_backend_api
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: student-devops-production-key-2026
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: student_db
+      USE_SQLITE: "false"
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - student_network
+
+  # ==========================================================
+  # Frontend Web Service (Nginx Reverse Proxy)
+  # ==========================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: student_frontend_web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - student_network
+
+# ==========================================================
+# Named Volumes & Networks for Persistence and Isolation
+# ==========================================================
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  student_network:
+    driver: bridge
