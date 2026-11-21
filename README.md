@@ -437,3 +437,4 @@ docker-compose up --build -d
 ## 📄 License & Credits
 Developed as an enterprise-grade full-stack DevOps demonstration.  
 Built with ❤️ using Python, Flask, Bootstrap, MySQL, Docker, and Jenkins.
+"# Student-Management-DevOps" 
