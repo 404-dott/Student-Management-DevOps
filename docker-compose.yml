@@ -1,7 +1,6 @@
+
 services:
-  # ==========================================================
-  # 1. Database Service (MySQL 8.0)
-  # ==========================================================
+  # 1. Database Service
   db:
     image: mysql:8.0
     restart: unless-stopped
@@ -14,7 +13,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-  - "3307:3306"
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s
@@ -24,9 +23,7 @@ services:
     networks:
       - student_network
 
-  # ==========================================================
-  # 2. Backend Service (Flask REST API + WSGI Gunicorn)
-  # ==========================================================
+  # 2. Backend Service
   backend:
     build:
       context: ./backend
@@ -56,9 +53,7 @@ services:
     networks:
       - student_network
 
-  # ==========================================================
-  # 3. Frontend Service (Nginx Web Server & Reverse Proxy)
-  # ==========================================================
+  # 3. Frontend Service
   frontend:
     build:
       context: ./frontend
@@ -78,9 +73,6 @@ services:
     networks:
       - student_network
 
-# ==========================================================
-# Named Volumes & Custom Bridge Network
-# ==========================================================
 volumes:
   mysql_data:
     driver: local
