@@ -1,8 +1,8 @@
-
 services:
-  # 1. Database Service
   db:
-    image: mysql:8.0
+    build:
+      context: ./database
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
@@ -11,19 +11,17 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-student_pass}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 20s
+      retries: 10
+      start_period: 60s
     networks:
       - student_network
 
-  # 2. Backend Service
   backend:
     build:
       context: ./backend
@@ -53,7 +51,6 @@ services:
     networks:
       - student_network
 
-  # 3. Frontend Service
   frontend:
     build:
       context: ./frontend
