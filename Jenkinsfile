@@ -100,7 +100,39 @@ pipeline {
         // =============================================================
         // Stage 5: Container Smoke Test & Verification
         // =============================================================
+        
         stage('Smoke Test Stack') {
+            steps {
+                echo 'Verifying container networking and health checks...'
+                sh '''
+                    echo "Starting stack in test mode..."
+                    docker compose up -d
+
+                    echo "Waiting for services to become healthy..."
+                    sleep 25
+
+                    echo "Checking Backend Health Endpoint..."
+                    docker compose exec -T backend curl -s -f http://localhost:5000/api/health || {
+                        echo "Backend probe failed!"
+                        docker compose logs backend
+                        docker compose down -v
+                        exit 1
+                    }
+
+                    echo "Checking Frontend HTTP Status..."
+                    docker compose exec -T backend curl -s -f -I http://frontend:80/ | grep -E "200 OK|302 Found" || {
+                        echo "Frontend probe failed!"
+                        docker compose logs frontend
+                        docker compose down -v
+                        exit 1
+                    }
+
+                    echo "Smoke testing succeeded. Cleaning test containers..."
+                    docker compose down -v
+                '''
+            }
+        }
+
             steps {
                 echo '🔍 Verifying container networking and health check probes...'
                 sh '''
