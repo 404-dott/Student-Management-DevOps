@@ -111,7 +111,7 @@ pipeline {
                     sleep 25
 
                     echo "Querying Backend Health Endpoint..."
-                    curl -s -f http://localhost:5000/api/health || {
+                    curl -s -f http://localhost:5001/api/health || {
                         echo "Backend probe failed!"
                         docker compose logs backend
                         docker compose down -v
@@ -183,11 +183,6 @@ pipeline {
     // =================================================================
     // Post-Pipeline Actions & Notifications
     // =================================================================
-    post {
-        always {
-            echo '🧹 Cleaning up workspace artifacts...'
-            cleanWs deleteDirs: true, notFailBuild: true
-        }
         success {
             echo '✅ Pipeline execution SUCCESSFUL! Code checked out, tested, built, and deployed.'
         }
