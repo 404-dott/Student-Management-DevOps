@@ -183,6 +183,7 @@ pipeline {
     // =================================================================
     // Post-Pipeline Actions & Notifications
     // =================================================================
+    post {
         success {
             echo '✅ Pipeline execution SUCCESSFUL! Code checked out, tested, built, and deployed.'
         }
