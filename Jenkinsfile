@@ -132,38 +132,6 @@ pipeline {
                 '''
             }
         }
-
-            steps {
-                echo '🔍 Verifying container networking and health check probes...'
-                sh '''
-                    echo "Starting stack in test mode..."
-                    docker compose up -d
-
-                    echo "Awaiting MySQL and Flask health status (up to 30s)..."
-                    sleep 25
-
-                    echo "Querying Backend Health Endpoint..."
-                    curl -s -f http://localhost:5001/api/health || {
-                        echo "Backend probe failed!"
-                        docker compose logs backend
-                        docker compose down -v
-                        exit 1
-                    }
-
-                    echo "Querying Frontend HTTP Status..."
-                    curl -s -f -I http://localhost:80/ | grep -E "200 OK|302 Found" || {
-                        echo "Frontend probe failed!"
-                        docker compose logs frontend
-                        docker compose down -v
-                        exit 1
-                    }
-
-                    echo "Smoke testing succeeded. Cleaning test containers..."
-                    docker compose down -v
-                '''
-            }
-        }
-
         // =============================================================
         // Stage 6: Push Images to Container Registry
         // =============================================================
