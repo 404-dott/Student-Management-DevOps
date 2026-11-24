@@ -102,13 +102,23 @@ pipeline {
         // =============================================================
         
         
+
 stage('Smoke Test Stack') {
     steps {
-        echo 'Verifying container networking and health checks...'
+        echo 'Verifying isolated test containers...'
         sh '''
             set -e
 
+            export DB_HOST_PORT=3309
+            export BACKEND_HOST_PORT=5002
+            export FRONTEND_HOST_PORT=8082
+
             PROJECT_NAME=student-management-ci-test
+
+            cleanup() {
+                docker compose -p $PROJECT_NAME down
+            }
+            trap cleanup EXIT
 
             echo "Starting isolated test stack..."
             docker compose -p $PROJECT_NAME up -d --build
@@ -125,12 +135,10 @@ stage('Smoke Test Stack') {
                 curl -s -f -I http://frontend:80/ | grep -E "200 OK|302 Found"
 
             echo "Smoke testing succeeded!"
-
-            echo "Cleaning up test containers..."
-            docker compose -p $PROJECT_NAME down
         '''
     }
 }
+
 
         // =============================================================
         // Stage 6: Push Images to Container Registry
