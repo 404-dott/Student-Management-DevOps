@@ -171,22 +171,19 @@ stage('Smoke Test Stack') {
         // =============================================================
         // Stage 7: Deployment using Docker Compose
         // =============================================================
-        stage('Deploy via Docker Compose') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo '🚀 Step 5: Deploying updated application using Docker Compose...'
-                sh '''
-                    # Pull latest images or rebuild and restart containers
-                    docker compose down
-                    docker compose up -d --build
-
-                    echo "Application deployed successfully and accessible at http://localhost:80"
-                '''
-            }
-        }
+       stage('Deploy via Docker Compose') {
+    when {
+        branch 'main'
     }
+    steps {
+        echo 'Deploying updated application using Docker Compose...'
+        sh '''
+            docker compose up -d --build
+
+            echo "Application deployment completed."
+        '''
+    }
+}
 
     // =================================================================
     // Post-Pipeline Actions & Notifications
