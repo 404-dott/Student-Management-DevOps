@@ -472,7 +472,7 @@ def mark_attendance(student_id, target_date, status="Present", remarks=None):
 def mark_bulk_attendance(records, target_date):
     """
     Bulk saves attendance.
-    records is a list of dicts: [{'student_id': 1, 'status': 'Present', 'remarks': ''}, ...]
+    records is a list of dicts: [{'student_id': 1, 'status': 'Present', 'remarks': 'def mark_bulk_attendance'}, ...]
     """
     conn, db_type = get_db_connection()
     try:
@@ -498,9 +498,16 @@ def mark_bulk_attendance(records, target_date):
                     marked_at = CURRENT_TIMESTAMP
             """
 
+        
         for item in records:
             sid = item["student_id"]
-            stat = item.get("status", "Present")
+            stat = item.get("status") or "Present"
+
+            if stat == "Unmarked":
+                stat = "Present"
+
+            if stat not in ("Present", "Absent", "Late"):
+                raise ValueError(f"Invalid attendance status: {stat}")
             rem = item.get("remarks", "")
             cursor.execute(query, (sid, str(target_date), stat, rem))
 

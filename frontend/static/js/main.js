@@ -817,7 +817,7 @@ async function handleSaveAttendance() {
 
     const payloadRecords = attendanceRecords.map(r => ({
         student_id: r.student_id,
-        status: r.status || 'Present',
+        status: (!r.status || r.status === 'Unmarked') ? 'Present' : r.status,
         remarks: remarksMap[r.student_id] || r.remarks || ''
     }));
 

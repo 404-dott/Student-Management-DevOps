@@ -101,37 +101,37 @@ pipeline {
         // Stage 5: Container Smoke Test & Verification
         // =============================================================
         
-        stage('Smoke Test Stack') {
-            steps {
-                echo 'Verifying container networking and health checks...'
-                sh '''
-                    echo "Starting stack in test mode..."
-                    docker compose up -d
+        
+stage('Smoke Test Stack') {
+    steps {
+        echo 'Verifying container networking and health checks...'
+        sh '''
+            set -e
 
-                    echo "Waiting for services to become healthy..."
-                    sleep 25
+            PROJECT_NAME=student-management-ci-test
 
-                    echo "Checking Backend Health Endpoint..."
-                    docker compose exec -T backend curl -s -f http://localhost:5000/api/health || {
-                        echo "Backend probe failed!"
-                        docker compose logs backend
-                        docker compose down -v
-                        exit 1
-                    }
+            echo "Starting isolated test stack..."
+            docker compose -p $PROJECT_NAME up -d --build
 
-                    echo "Checking Frontend HTTP Status..."
-                    docker compose exec -T backend curl -s -f -I http://frontend:80/ | grep -E "200 OK|302 Found" || {
-                        echo "Frontend probe failed!"
-                        docker compose logs frontend
-                        docker compose down -v
-                        exit 1
-                    }
+            echo "Waiting for services..."
+            sleep 30
 
-                    echo "Smoke testing succeeded. Cleaning test containers..."
-                    docker compose down -v
-                '''
-            }
-        }
+            echo "Checking Backend Health..."
+            docker compose -p $PROJECT_NAME exec -T backend \
+                curl -s -f http://localhost:5000/api/health
+
+            echo "Checking Frontend..."
+            docker compose -p $PROJECT_NAME exec -T backend \
+                curl -s -f -I http://frontend:80/ | grep -E "200 OK|302 Found"
+
+            echo "Smoke testing succeeded!"
+
+            echo "Cleaning up test containers..."
+            docker compose -p $PROJECT_NAME down
+        '''
+    }
+}
+
         // =============================================================
         // Stage 6: Push Images to Container Registry
         // =============================================================
